@@ -8,6 +8,9 @@ code {
     alpha radius = capture("Radius: ");
     beta area = pi * radius * radius;
 
+    char error
+    error = c
+
     flip (area > 50) {
         echo("Large circle");
     } flop {

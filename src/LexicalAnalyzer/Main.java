@@ -15,7 +15,8 @@ public class Main {
         try {
             String inputCode = new String(Files.readAllBytes(Paths.get(filePath)));
             SymbolTable symbolTable = new SymbolTable();
-            Lexer lexer = new Lexer(inputCode, symbolTable);
+            ErrorHandler errorHandler = new ErrorHandler();
+            Lexer lexer = new Lexer(inputCode, symbolTable, errorHandler);
             List<Token> tokens = lexer.tokenize();
 
             System.out.println("\nTokenized Output:");
@@ -26,6 +27,7 @@ public class Main {
             System.out.println("Total number of tokens: " + tokens.size());
             System.out.println("\nSymbol table:");
             symbolTable.printSymbolTable();
+            errorHandler.printErrors();
 
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());

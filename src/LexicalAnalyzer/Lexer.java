@@ -6,31 +6,52 @@ public class Lexer {
     private static final Set<String> KEYWORDS = Set.of("flip", "twist", "flop", "spin", "echo", "capture", "global", "return", "func", "code");
     private static final Set<String> DATATYPES = Set.of("rizz", "alpha", "beta", "gamma");
     private static final Set<Character> OPERATORS = Set.of('+', '-', '*', '/', '%', '^', '=', '<', '>');
-    private static final Set<Character> PUNCTUATORS = Set.of('{', '}', '(', ')', ',', ';', '[', ']');
+    private static final Set<Character> PUNCTUATORS = Set.of('{', '}', '(', ')', ',', '[', ']');
 
     private final String code;
     private int index = 0;
     private final List<Token> tokens = new ArrayList<>();
     private final SymbolTable symbolTable;
+    private final ErrorHandler errorHandler;
     private String lastDataType = null;
+    private int lineNumber = 1;
 
-    public Lexer(String code, SymbolTable symbolTable) {
+    public Lexer(String code, SymbolTable symbolTable, ErrorHandler errorHandler) {
         this.code = code;
         this.symbolTable = symbolTable;
+        this.errorHandler = errorHandler;
     }
 
     public List<Token> tokenize() {
+        boolean expectSemicolon = false;
+
         while (index < code.length()) {
             char current = code.charAt(index);
 
-            if (Character.isWhitespace(current)) {
+            if (current == '\n') {
+                lineNumber++;
+                index++;
+            } else if (Character.isWhitespace(current)) {
                 index++;
             } else if (current == '<' && peekAhead("<<<")) {
                 tokens.add(processMultiLineComment());
             } else if (current == '<' && peekAhead("<<")) {
                 tokens.add(processSingleLineComment());
             } else if (Character.isLetter(current)) {
-                tokens.add(processIdentifierOrKeyword());
+                Token token = processIdentifierOrKeyword();
+                tokens.add(token);
+                if (token.getType() == Token.Type.IDENTIFIER) {
+
+                    int tempIndex = index;
+                    while (tempIndex < code.length() && Character.isWhitespace(code.charAt(tempIndex))) {
+                        tempIndex++;
+                    }
+                    if (tempIndex < code.length() && code.charAt(tempIndex) == '=') {
+                        expectSemicolon = true;
+                    } else if (isTypeKeyword(token.getValue())) {
+                        expectSemicolon = true;
+                    }
+                }
             } else if (current == '{') {
                 symbolTable.enterScope("local");
                 tokens.add(new Token(Token.Type.PUNCTUATOR, "{"));
@@ -47,12 +68,27 @@ public class Lexer {
                 tokens.add(new Token(Token.Type.PUNCTUATOR, String.valueOf(code.charAt(index++))));
             } else if (current == '"') {
                 tokens.add(processString());
+            } else if (current == ';') {
+                expectSemicolon = false;
+                tokens.add(new Token(Token.Type.PUNCTUATOR, ";"));
+                index++;
             } else {
                 tokens.add(new Token(Token.Type.UNKNOWN, String.valueOf(current)));
                 index++;
             }
+            // Check if a semicolon is missing before a newline or block start
+            if (expectSemicolon && (current == '\n')) {
+                errorHandler.addError(lineNumber, "Missing semicolon before this line.");
+                expectSemicolon = false;
+            }
         }
         return tokens;
+    }
+
+    private boolean isTypeKeyword(String word) {
+        return word.equals("int") || word.equals("float") || word.equals("char") ||
+                word.equals("string") || word.equals("bool") || word.equals("double") ||
+                word.equals("rizz") || word.equals("alpha") || word.equals("beta");
     }
 
     private boolean peekAhead(String match) {
