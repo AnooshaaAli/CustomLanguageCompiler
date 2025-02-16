@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        String filePath = "src/input/input.ohioohio";
+        String filePath = "src/input/input.ohio";
 
         try {
             String inputCode = new String(Files.readAllBytes(Paths.get(filePath)));

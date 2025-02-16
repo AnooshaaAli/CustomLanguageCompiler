@@ -14,12 +14,10 @@ class SymbolTable {
         private final String name;
         private final String type;
         private final int memoryLocation;
-        private final String value;
 
-        SymbolEntry(String name, String type, String value, int memoryLocation) {
+        SymbolEntry(String name, String type, int memoryLocation) {
             this.name = name;
             this.type = type;
-            this.value = value;
             this.memoryLocation = memoryLocation;
         }
 
@@ -35,28 +33,24 @@ class SymbolTable {
             return memoryLocation;
         }
 
-        public String getValue() {
-            return value == null ? "" : value;
-        }
     }
 
-    public void addSymbol(String name, String type, String value) {
+    public void addSymbol(String name, String type) {
         if (!table.containsKey(name)) {
-            table.put(name, new SymbolEntry(name, type, value, memoryAddress++));
+            table.put(name, new SymbolEntry(name, type, memoryAddress++));
         }
     }
 
     public void printSymbolTable() {
         System.out.println("------------------------------------------------------------");
-        System.out.printf("%-20s %-15s %-20s %-15s%n", "Name", "Type", "Memory Location", "Value");
+        System.out.printf("%-20s %-15s %-20s%n", "Name", "Type", "Memory Location");
         System.out.println("------------------------------------------------------------");
 
         for (SymbolEntry entry : table.values()) {
-            System.out.printf("%-20s %-15s %-20d %-15s%n",
+            System.out.printf("%-20s %-15s %-20d%n",
                     entry.getName(),
                     entry.getType(),
-                    entry.getMemoryLocation(),
-                    entry.getValue());
+                    entry.getMemoryLocation());
         }
     }
 }

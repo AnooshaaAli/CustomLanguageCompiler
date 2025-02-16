@@ -58,10 +58,10 @@ public class Lexer {
         String word = code.substring(start, index);
         if (KEYWORDS.contains(word)) return new Token(Token.Type.KEYWORD, word);
         if (DATATYPES.contains(word)){
-            symbolTable.addSymbol(word, "DATATYPE", "");
+            symbolTable.addSymbol(word, "DATATYPE");
             return new Token(Token.Type.DATATYPE, word);
         }
-        symbolTable.addSymbol(word, "IDENTIFIER", "");
+        symbolTable.addSymbol(word, "IDENTIFIER");
         return new Token(Token.Type.IDENTIFIER, word);
     }
 
@@ -76,19 +76,21 @@ public class Lexer {
                 index++;
             }
             String value = code.substring(start, index);
-            symbolTable.addSymbol(value, "DECIMAL", value);
+            symbolTable.addSymbol(value, "DECIMAL");
             return new Token(Token.Type.DECIMAL, code.substring(start, index));
         }
         String value = code.substring(start, index);
-        symbolTable.addSymbol(value, "INTEGER", value);
+        symbolTable.addSymbol(value, "INTEGER");
         return new Token(Token.Type.INTEGER, code.substring(start, index));
     }
 
     private Token processOperator() {
         char current = code.charAt(index++);
         if (index < code.length() && (current == '=' || code.charAt(index) == '=')) {
+            symbolTable.addSymbol(String.valueOf(current), "OPERATOR");
             return new Token(Token.Type.OPERATOR, current + String.valueOf(code.charAt(index++)));
         }
+        symbolTable.addSymbol(String.valueOf(current), "OPERATOR");
         return new Token(Token.Type.OPERATOR, String.valueOf(current));
     }
 
@@ -99,7 +101,7 @@ public class Lexer {
         }
         index++;
         String value = code.substring(start, index);
-        symbolTable.addSymbol(value, "STRING", value);
+        symbolTable.addSymbol(value, "STRING");
         return new Token(Token.Type.STRING, code.substring(start, index));
     }
 
@@ -110,7 +112,7 @@ public class Lexer {
         }
         index += 2; // Skip '>>'
         String value = code.substring(start, index);
-        symbolTable.addSymbol(value, "COMMENT", "");
+        symbolTable.addSymbol(value, "COMMENT");
         return new Token(Token.Type.COMMENT, code.substring(start, index));
     }
 
@@ -121,7 +123,7 @@ public class Lexer {
         }
         index += 3; // Skip '>>>'
         String value = code.substring(start, index);
-        symbolTable.addSymbol(value, "COMMENT", "");
+        symbolTable.addSymbol(value, "COMMENT");
         return new Token(Token.Type.COMMENT, code.substring(start, index));
     }
 }
