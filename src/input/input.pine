@@ -1,0 +1,18 @@
+
+<< Calculate area of a circle >>
+<<< Hyy
+...
+Bye >>>
+
+global beta pi = 3.14159;
+
+code {
+    alpha radius = capture("Radius: ");
+    beta area = pi * radius * radius;
+
+    flip (area > 50) {
+        echo("Large circle");
+    } flop {
+        echo("Small circle");
+    }
+}
