@@ -1,10 +1,8 @@
-
 << Calculate area of a circle >>
-<<< Hyy
-...
-Bye >>>
 
-global beta pi = 3.14159;
+beta pi = 3.14159;
+
+func myFunc() { }
 
 code {
     alpha radius = capture("Radius: ");

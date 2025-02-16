@@ -24,6 +24,7 @@ public class Main {
             }
 
             System.out.println("Total number of tokens: " + tokens.size());
+            System.out.println("\nSymbol table:");
             symbolTable.printSymbolTable();
 
         } catch (IOException e) {

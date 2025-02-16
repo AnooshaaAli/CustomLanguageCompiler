@@ -20,11 +20,17 @@ Ohio supports the following data types:
   ```
 
 ### 3. **Constants**
-- Global constants must be declared using `global`.
-- Example:
-  ```ohio
-  global beta pi = 3.14159;
-  ```
+- Global constants must be declared outside `code {}`.
+  - Example:
+    ```ohio
+    << a global variable >>
+    beta pi = 3.14159;
+    
+    code {
+      << a local varible >>
+      beta radius = 10.0;
+    }
+    ```
 
 ### 4. **Operators**
 - Arithmetic: `+`, `-`, `*`, `/`, `%`
@@ -108,7 +114,7 @@ echo("Sum:", result);
 ```ohio
 << Calculate area of a circle >>
 
-global beta pi = 3.14159;
+beta pi = 3.14159;
 
 code {
     alpha radius = capture("Radius: ");

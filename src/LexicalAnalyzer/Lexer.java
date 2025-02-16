@@ -12,6 +12,7 @@ public class Lexer {
     private int index = 0;
     private final List<Token> tokens = new ArrayList<>();
     private final SymbolTable symbolTable;
+    private String lastDataType = null;
 
     public Lexer(String code, SymbolTable symbolTable) {
         this.code = code;
@@ -30,6 +31,14 @@ public class Lexer {
                 tokens.add(processSingleLineComment());
             } else if (Character.isLetter(current)) {
                 tokens.add(processIdentifierOrKeyword());
+            } else if (current == '{') {
+                symbolTable.enterScope("local");
+                tokens.add(new Token(Token.Type.PUNCTUATOR, "{"));
+                index++;
+            } else if (current == '}') {
+                symbolTable.exitScope();
+                tokens.add(new Token(Token.Type.PUNCTUATOR, "}"));
+                index++;
             } else if (Character.isDigit(current)) {
                 tokens.add(processNumber());
             } else if (OPERATORS.contains(current)) {
@@ -56,12 +65,25 @@ public class Lexer {
             index++;
         }
         String word = code.substring(start, index);
-        if (KEYWORDS.contains(word)) return new Token(Token.Type.KEYWORD, word);
-        if (DATATYPES.contains(word)){
-            symbolTable.addSymbol(word, "DATATYPE");
+
+        if (KEYWORDS.contains(word)) {
+            return new Token(Token.Type.KEYWORD, word);
+        }
+
+        if (DATATYPES.contains(word)) {
+            lastDataType = word;
             return new Token(Token.Type.DATATYPE, word);
         }
-        symbolTable.addSymbol(word, "IDENTIFIER");
+
+        boolean isFunction = (index < code.length() && code.charAt(index) == '(');
+        if (isFunction) {
+            symbolTable.addSymbol(word, "function");
+            return new Token(Token.Type.FUNCTION, word);
+        }
+        else if (lastDataType != null) {
+            symbolTable.addSymbol(word, lastDataType);
+            lastDataType = null;
+        }
         return new Token(Token.Type.IDENTIFIER, word);
     }
 
@@ -76,21 +98,21 @@ public class Lexer {
                 index++;
             }
             String value = code.substring(start, index);
-            symbolTable.addSymbol(value, "DECIMAL");
+            //symbolTable.addSymbol(value, "DECIMAL");
             return new Token(Token.Type.DECIMAL, code.substring(start, index));
         }
         String value = code.substring(start, index);
-        symbolTable.addSymbol(value, "INTEGER");
+        //symbolTable.addSymbol(value, "INTEGER");
         return new Token(Token.Type.INTEGER, code.substring(start, index));
     }
 
     private Token processOperator() {
         char current = code.charAt(index++);
         if (index < code.length() && (current == '=' || code.charAt(index) == '=')) {
-            symbolTable.addSymbol(String.valueOf(current), "OPERATOR");
+            //symbolTable.addSymbol(String.valueOf(current), "OPERATOR");
             return new Token(Token.Type.OPERATOR, current + String.valueOf(code.charAt(index++)));
         }
-        symbolTable.addSymbol(String.valueOf(current), "OPERATOR");
+        //symbolTable.addSymbol(String.valueOf(current), "OPERATOR");
         return new Token(Token.Type.OPERATOR, String.valueOf(current));
     }
 
@@ -101,7 +123,7 @@ public class Lexer {
         }
         index++;
         String value = code.substring(start, index);
-        symbolTable.addSymbol(value, "STRING");
+        //symbolTable.addSymbol(value, "STRING");
         return new Token(Token.Type.STRING, code.substring(start, index));
     }
 
@@ -112,7 +134,7 @@ public class Lexer {
         }
         index += 2; // Skip '>>'
         String value = code.substring(start, index);
-        symbolTable.addSymbol(value, "COMMENT");
+        //symbolTable.addSymbol(value, "COMMENT");
         return new Token(Token.Type.COMMENT, code.substring(start, index));
     }
 
@@ -123,7 +145,7 @@ public class Lexer {
         }
         index += 3; // Skip '>>>'
         String value = code.substring(start, index);
-        symbolTable.addSymbol(value, "COMMENT");
+        //symbolTable.addSymbol(value, "COMMENT");
         return new Token(Token.Type.COMMENT, code.substring(start, index));
     }
 }
