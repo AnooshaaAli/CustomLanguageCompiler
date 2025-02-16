@@ -1,8 +1,8 @@
-# PineApple Programming Language
+# Ohio Programming Language
 ## Syntax and Rules
 
 ### 1. **Data Types**
-PineApple supports the following data types:
+Ohio supports the following data types:
 
 - `alpha` - Integer values (e.g., `int age = 25;`)
 - `beta` - Decimal (floating-point) values (e.g., `dec pi = 3.14159;`)
@@ -13,7 +13,7 @@ PineApple supports the following data types:
 - Variables must be declared before use.
 - Only lowercase letters are allowed for variable names.
 - Example:
-  ```pine
+  ```ohio
   alpha x = 10;
   beta pi = 3.14;
   rizz is_valid = true;
@@ -22,7 +22,7 @@ PineApple supports the following data types:
 ### 3. **Constants**
 - Global constants must be declared using `global`.
 - Example:
-  ```pine
+  ```ohio
   global beta pi = 3.14159;
   ```
 
@@ -33,7 +33,7 @@ PineApple supports the following data types:
 
 ### 5. **Control Structures**
 #### **If-Else Statement**
-```pine
+```ohio
 flip () {
     << true case code >>
 } twist() {
@@ -43,7 +43,7 @@ flip () {
 }
 ```
 Example:
-```pine
+```ohio
 flip (x > 0) {
     echo("x is positive");
 } twist (x < 0) {
@@ -56,13 +56,13 @@ flip (x > 0) {
 
 #### **Loops**
 - **While Loop:**
-```pine
+```ohio
 spin (condition) {
     << Code block >>
 }
 ```
 Example:
-```pine
+```ohio
 alpha i = 0;
 spin (i < 5) {
     echo(i);
@@ -72,18 +72,18 @@ spin (i < 5) {
 
 ### 6. **Input/Output**
 - **Printing to Console:**
-```pine
+```ohio
 echo("Hello, World!");
 ```
 - **User Input:**
-```pine
+```ohio
 alpha age = capture("Enter your age: ");
 ```
 
 ### 7. **Comments**
 - **Single-line comment:** `<< This is a comment >>`
 - **Multi-line comment:**
-```pine
+```ohio
 <<<
    This is a multi-line comment.
 >>>
@@ -92,7 +92,7 @@ alpha age = capture("Enter your age: ");
 ### 8. **Functions**
 - Functions must be declared before use.
 - Example:
-```pine
+```ohio
 func add(int a, int b) {
     return a + b;
 }
@@ -105,7 +105,7 @@ echo("Sum:", result);
 - Proper indentation is recommended but not required.
 
 ## Example Program
-```pine
+```ohio
 << Calculate area of a circle >>
 
 global beta pi = 3.14159;
@@ -123,7 +123,7 @@ code {
 ```
 
 ## File Extension
-- PineApple files should use the `.pine` extension.
+- Ohio files should use the `.ohio` extension.
 
 ## End of File (EOF)
 - The program ends automatically at the last line unless explicitly stated.
