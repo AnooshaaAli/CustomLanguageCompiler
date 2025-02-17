@@ -105,8 +105,22 @@ public class REtoNFA {
     }
 
     public static void main(String[] args) {
-        String keyword_regex = "flip|flop|code";  // Example input
-        NFA keyword_nfa = regexToNFA(keyword_regex);
+
+        // ----------------------- REGEX --------------------------- //
+
+        String KEYWORDS = "flip|twist|flop|spin|echo|capture|global|return|func|code";
+        String BOOLEAN = "true|false";
+        String DATATYPES = "rizz|alpha|beta|gamma";
+        String IDENTIFIERS = "[a-z][a-z0-9]*";
+        String OPERATORS = "[+\\-*/%^]|=|<=|>=|==|!=|<|>";
+        String STRING = "\"([^\"]*)\"";
+        String COMMENT = "<<<[\\s\\S]*?>>>|<<.*?>>";
+        String INTEGER = "\\b\\d+\\b";
+        String DECIMAL = "\\b\\d+\\.\\d{1,5}\\b";
+        String CHARACTER = "'[^']'";
+        String PUNCTUATOR = "[{}(),;\\[\\]]";
+
+        NFA keyword_nfa = regexToNFA(IDENTIFIERS);
         printNFATransitionTable(keyword_nfa);
     }
 }
