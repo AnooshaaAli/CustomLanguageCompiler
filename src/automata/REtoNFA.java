@@ -1,6 +1,7 @@
 package automata;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class REtoNFA {
     private static int stateCounter = 0;
@@ -64,51 +65,48 @@ public class REtoNFA {
         return stack2.pop();
     }
 
-    private static void printNFA(NFA nfa) {
-        Stack<Pair<State, String>> stack = new Stack<>();
+    private static void printNFATransitionTable(NFA nfa) {
         Set<State> visited = new HashSet<>();
+        Queue<State> queue = new LinkedList<>();
 
-        stack.push(new Pair<>(nfa.startState, "")); // Push root with empty prefix
+        queue.add(nfa.startState);
         visited.add(nfa.startState);
 
-        System.out.println("NFA Tree Representation:");
+        System.out.println("NFA Transition Table:");
+        System.out.println("-------------------------------------------------");
+        System.out.printf("| %-10s | %-10s | %-20s |\n", "State", "Symbol", "Next States");
+        System.out.println("-------------------------------------------------");
 
-        while (!stack.isEmpty()) {
-            Pair<State, String> currentPair = stack.pop();
-            State current = currentPair.getKey();
-            String prefix = currentPair.getValue();
+        while (!queue.isEmpty()) {
+            State current = queue.poll();
 
-            // Print current state
-            System.out.println(prefix + "└── State " + current.id);
-
-            List<Map.Entry<Character, List<State>>> transitions = new ArrayList<>(current.transitions.entrySet());
-            Collections.reverse(transitions); // Reverse to maintain proper order
-
-            for (int i = 0; i < transitions.size(); i++) {
-                Map.Entry<Character, List<State>> entry = transitions.get(i);
+            for (Map.Entry<Character, List<State>> entry : current.transitions.entrySet()) {
                 char symbol = entry.getKey();
                 List<State> nextStates = entry.getValue();
 
-                for (int j = nextStates.size() - 1; j >= 0; j--) {
-                    State next = nextStates.get(j);
-                    boolean isLast = (i == transitions.size() - 1) && (j == 0);
+                String nextStatesStr = nextStates.stream()
+                        .map(state -> "q" + state.id)  // Formatting state names
+                        .collect(Collectors.joining(", "));
 
-                    System.out.println(prefix + (isLast ? "    └── " : "    ├── ") + "[" + (symbol == 'ε' ? "ε" : symbol) + "] → State " + next.id);
+                System.out.printf("| %-10s | %-10s | %-20s |\n", "q" + current.id, (symbol == 'ε' ? "ε" : symbol), nextStatesStr);
 
+                for (State next : nextStates) {
                     if (!visited.contains(next)) {
-                        stack.push(new Pair<>(next, prefix + (isLast ? "    " : "    │   ")));
+                        queue.add(next);
                         visited.add(next);
                     }
                 }
             }
         }
 
-        System.out.println("End State: " + nfa.endState.id);
+        System.out.println("-------------------------------------------------");
+        System.out.println("Start State: q" + nfa.startState.id);
+        System.out.println("End State: q" + nfa.endState.id);
     }
 
     public static void main(String[] args) {
-        String regex = "flip|flop|code";  // Example input
-        NFA nfa = regexToNFA(regex);
-        printNFA(nfa);
+        String keyword_regex = "flip|flop|code";  // Example input
+        NFA keyword_nfa = regexToNFA(keyword_regex);
+        printNFATransitionTable(keyword_nfa);
     }
 }
