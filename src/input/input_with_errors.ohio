@@ -2,7 +2,7 @@
 rizz@ test = true;
 beta x = 5.2123211
 gamma TEMP = 'A'
-beta y = 0.1e2;
+beta y1 = 0.1e2;
 gamma z = 'a'
 gamma p = 'AA'
 

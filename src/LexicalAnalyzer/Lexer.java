@@ -87,10 +87,19 @@ public class Lexer {
 
     private Token processIdentifierOrKeyword() {
         int start = index;
-        while (index < code.length() && Character.isLetterOrDigit(code.charAt(index))) {
+        while (index < code.length() && Character.isLetter(code.charAt(index))) {
             index++;
         }
         String word = code.substring(start, index);
+
+        if (Character.isDigit(code.charAt(index))) {
+            while (index < code.length() && Character.isLetterOrDigit(code.charAt(index))) {
+                index++;
+            }
+            word = code.substring(start, index);
+            errorHandler.reportError("Invalid identifier: '" + word + "' at line " + lineNumber + ". Identifiers can not contains numbers.");
+            return new Token(Token.Type.UNKNOWN, word);
+        }
 
         if (!word.equals(word.toLowerCase())) {
             errorHandler.reportError("Invalid identifier: '" + word + "' at line " + lineNumber + ". Identifiers must be lowercase.");
