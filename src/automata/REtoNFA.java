@@ -120,7 +120,7 @@ public class REtoNFA {
         String CHARACTER = "'[^']'";
         String PUNCTUATOR = "[{}(),;\\[\\]]";
 
-        NFA keyword_nfa = regexToNFA(IDENTIFIERS);
+        NFA keyword_nfa = regexToNFA(KEYWORDS);
         printNFATransitionTable(keyword_nfa);
     }
 }

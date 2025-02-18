@@ -3,25 +3,15 @@ package LexicalAnalyzer;
 import java.util.ArrayList;
 import java.util.List;
 
-class ErrorHandler {
+public class ErrorHandler {
     private final List<String> errors = new ArrayList<>();
 
-    public void addError(int line, String message) {
-        errors.add("ERROR at line " + line + ": " + message);
+    public void reportError(String errorMessage) {
+        errors.add(errorMessage);
+        System.err.println("[Error] " + errorMessage);
     }
 
-    public boolean hasErrors() {
-        return !errors.isEmpty();
-    }
-
-    public void printErrors() {
-        if (errors.isEmpty()) {
-            System.out.println("No syntax errors found.");
-        } else {
-            System.out.println("Syntax Errors:");
-            for (String error : errors) {
-                System.out.println(error);
-            }
-        }
+    public List<String> getErrors() {
+        return errors;
     }
 }

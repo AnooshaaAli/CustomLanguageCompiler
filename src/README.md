@@ -1,10 +1,10 @@
 ## What is Left?
 
 ### Error Handling
-    - invalid data types
-    - match brackets
-    - keywords are correct?
-    - etc, etc
+    - incomplete comments (done)
+    - unknown tokens (done)
+    - invalid decimal numbers
+    - 
 
 ### Transition Table
     - RE to NFA

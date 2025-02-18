@@ -23,7 +23,6 @@ public class Lexer {
     }
 
     public List<Token> tokenize() {
-        boolean expectSemicolon = false;
 
         while (index < code.length()) {
             char current = code.charAt(index);
@@ -46,11 +45,6 @@ public class Lexer {
                     while (tempIndex < code.length() && Character.isWhitespace(code.charAt(tempIndex))) {
                         tempIndex++;
                     }
-                    if (tempIndex < code.length() && code.charAt(tempIndex) == '=') {
-                        expectSemicolon = true;
-                    } else if (isTypeKeyword(token.getValue())) {
-                        expectSemicolon = true;
-                    }
                 }
             } else if (current == '{') {
                 symbolTable.enterScope("local");
@@ -69,17 +63,11 @@ public class Lexer {
             } else if (current == '"') {
                 tokens.add(processString());
             } else if (current == ';') {
-                expectSemicolon = false;
                 tokens.add(new Token(Token.Type.PUNCTUATOR, ";"));
                 index++;
             } else {
-                tokens.add(new Token(Token.Type.UNKNOWN, String.valueOf(current)));
+                errorHandler.reportError("Unexpected token '" + current + "' at line " + lineNumber);
                 index++;
-            }
-            // Check if a semicolon is missing before a newline or block start
-            if (expectSemicolon && (current == '\n')) {
-                errorHandler.addError(lineNumber, "Missing semicolon before this line.");
-                expectSemicolon = false;
             }
         }
         return tokens;
@@ -102,6 +90,11 @@ public class Lexer {
         }
         String word = code.substring(start, index);
 
+        if (!word.equals(word.toLowerCase())) {
+            errorHandler.reportError("Invalid identifier: '" + word + "' at line " + lineNumber + ". Identifiers must be lowercase.");
+            return new Token(Token.Type.UNKNOWN, word);
+        }
+
         if (KEYWORDS.contains(word)) {
             return new Token(Token.Type.KEYWORD, word);
         }
@@ -120,26 +113,63 @@ public class Lexer {
             symbolTable.addSymbol(word, lastDataType);
             lastDataType = null;
         }
+
+        if (Character.isDigit(word.charAt(0))) {
+            errorHandler.reportError("Invalid identifier '" + word + "' at line " + lineNumber);
+        }
+
         return new Token(Token.Type.IDENTIFIER, word);
     }
 
     private Token processNumber() {
         int start = index;
-        while (index < code.length() && Character.isDigit(code.charAt(index))) {
-            index++;
-        }
-        if (index < code.length() && code.charAt(index) == '.') {
-            index++;
-            while (index < code.length() && Character.isDigit(code.charAt(index))) {
-                index++;
+        boolean hasDecimalPoint = false;
+        boolean hasExponent = false;
+        int decimalCount = 0;
+
+        while (index < code.length() && (Character.isDigit(code.charAt(index)) || code.charAt(index) == '.' || code.charAt(index) == 'e')) {
+            char currentChar = code.charAt(index);
+
+            if (currentChar == '.') {
+                if (hasDecimalPoint) {
+                    errorHandler.reportError("Malformed number at line " + lineNumber + ": multiple decimal points.");
+                    return new Token(Token.Type.UNKNOWN, code.substring(start, index));
+                }
+                hasDecimalPoint = true;
             }
-            String value = code.substring(start, index);
-            //symbolTable.addSymbol(value, "DECIMAL");
-            return new Token(Token.Type.DECIMAL, code.substring(start, index));
+            else if (currentChar == 'e' ) {
+                if (hasExponent) {
+                    errorHandler.reportError("Malformed number at line " + lineNumber + ": multiple exponents.");
+                    return new Token(Token.Type.UNKNOWN, code.substring(start, index));
+                }
+                hasExponent = true;
+
+                // Check for sign after exponent
+                if (index + 1 < code.length() && (code.charAt(index + 1) == '+' || code.charAt(index + 1) == '-')) {
+                    index++;
+                }
+            } else if (hasDecimalPoint) {
+                decimalCount++;
+            }
+
+            index++;
         }
-        String value = code.substring(start, index);
-        //symbolTable.addSymbol(value, "INTEGER");
-        return new Token(Token.Type.INTEGER, code.substring(start, index));
+
+        String number = code.substring(start, index);
+
+        // Check if decimal places exceed 5
+        if (hasDecimalPoint && decimalCount > 5) {
+            number = code.substring(start, index-decimalCount+5);
+            errorHandler.reportError("Decimal number exceeds 5 decimal places: " + number + " at line " + lineNumber);
+            return new Token(Token.Type.DECIMAL, number); // Mark as unknown if invalid
+        }
+
+        else if (code.charAt(index) == 'E') {
+            errorHandler.reportError("Malformed number " + number + " at line " + lineNumber);
+            return new Token(Token.Type.UNKNOWN, number); // Mark as unknown if invalid
+        }
+
+        return new Token(hasDecimalPoint ? Token.Type.DECIMAL : Token.Type.INTEGER, number);
     }
 
     private Token processOperator() {
@@ -157,6 +187,12 @@ public class Lexer {
         while (index < code.length() && code.charAt(index) != '"') {
             index++;
         }
+
+        if (index >= code.length()) {
+            errorHandler.reportError("Unterminated string literal at line " + lineNumber);
+            return new Token(Token.Type.UNKNOWN, code.substring(start));
+        }
+
         index++;
         String value = code.substring(start, index);
         //symbolTable.addSymbol(value, "STRING");
@@ -165,9 +201,15 @@ public class Lexer {
 
     private Token processSingleLineComment() {
         int start = index;
-        while (index < code.length() && code.charAt(index) != '>') {
+        while (index < code.length() && code.charAt(index) != '>' && code.charAt(index) != '\n') {
             index++;
         }
+
+        if (code.charAt(index) == '\n') {
+            errorHandler.reportError("Unterminated single-line comment at line " + lineNumber);
+            return new Token(Token.Type.UNKNOWN, code.substring(start));
+        }
+
         index += 2; // Skip '>>'
         String value = code.substring(start, index);
         //symbolTable.addSymbol(value, "COMMENT");
@@ -179,6 +221,12 @@ public class Lexer {
         while (index < code.length() && !peekAhead(">>>")) {
             index++;
         }
+
+        if (index >= code.length()) {
+            errorHandler.reportError("Unterminated multi-line comment at line " + lineNumber);
+            return new Token(Token.Type.UNKNOWN, code.substring(start));
+        }
+
         index += 3; // Skip '>>>'
         String value = code.substring(start, index);
         //symbolTable.addSymbol(value, "COMMENT");

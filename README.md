@@ -36,6 +36,7 @@ Ohio supports the following data types:
 - Arithmetic: `+`, `-`, `*`, `/`, `%`
 - Comparison: `==`, `!=`, `>`, `<`, `>=`, `<=`
 - Assignment: `=`
+- Exponent: `e`
 
 ### 5. **Control Structures**
 #### **If-Else Statement**
