@@ -62,6 +62,8 @@ public class Lexer {
                 tokens.add(new Token(Token.Type.PUNCTUATOR, String.valueOf(code.charAt(index++))));
             } else if (current == '"') {
                 tokens.add(processString());
+            } else if (current == '\'') {
+                tokens.add(processCharacter());
             } else if (current == ';') {
                 tokens.add(new Token(Token.Type.PUNCTUATOR, ";"));
                 index++;
@@ -197,6 +199,65 @@ public class Lexer {
         String value = code.substring(start, index);
         //symbolTable.addSymbol(value, "STRING");
         return new Token(Token.Type.STRING, code.substring(start, index));
+    }
+
+    private Token processCharacter() {
+        int start = index;
+
+        if (index >= code.length() - 1 || code.charAt(index) != '\'') {
+            errorHandler.reportError("Unterminated character literal at line " + lineNumber);
+            return new Token(Token.Type.UNKNOWN, "'");
+        }
+
+        index++; // Move past opening quote
+
+        char character;
+        if (index < code.length() && code.charAt(index) == '\\') {
+            // Handling escape sequences
+            if (index + 1 < code.length()) {
+                char next = code.charAt(index + 1);
+                switch (next) {
+                    case 'n': character = '\n'; break;
+                    case 't': character = '\t'; break;
+                    case 'r': character = '\r'; break;
+                    case 'b': character = '\b'; break;
+                    case 'f': character = '\f'; break;
+                    case '\\': character = '\\'; break;
+                    case '\'': character = '\''; break;
+                    case '\"': character = '\"'; break;
+                    default:
+                        errorHandler.reportError("Invalid escape sequence at line " + lineNumber);
+                        return new Token(Token.Type.UNKNOWN, code.substring(start, index + 2));
+                }
+                index += 2; // Move past escape sequence
+            } else {
+                errorHandler.reportError("Unfinished escape sequence at line " + lineNumber);
+                return new Token(Token.Type.UNKNOWN, code.substring(start, index));
+            }
+        } else {
+            // Normal character
+            if (index < code.length()) {
+                character = code.charAt(index);
+                index++;
+            } else {
+                errorHandler.reportError("Unterminated character literal at line " + lineNumber);
+                return new Token(Token.Type.UNKNOWN, "'");
+            }
+        }
+
+        // NEW CHECK: Ensure there's no extra character before the closing quote
+        if (index < code.length() && code.charAt(index) != '\'') {
+            errorHandler.reportError("Invalid character literal (too many characters) at line " + lineNumber);
+            // Skip ahead to find the next valid token
+            while (index < code.length() && code.charAt(index) != '\'') {
+                index++;
+            }
+            if (index < code.length()) index++; // Move past closing quote if found
+            return new Token(Token.Type.UNKNOWN, code.substring(start, index));
+        }
+
+        index++; // Move past closing quote
+        return new Token(Token.Type.CHARACTER, code.substring(start, index));
     }
 
     private Token processSingleLineComment() {
