@@ -66,7 +66,7 @@ public class REtoNFA {
     }
 
     private static NFA concatenate(NFA first, NFA second) {
-        first.endState.addTransition('ε', second.startState);
+        first.endState.addTransition('\0', second.startState);
         return new NFA(first.startState, second.endState);
     }
 
@@ -74,11 +74,11 @@ public class REtoNFA {
         State start = new State(stateCounter++);
         State end = new State(stateCounter++);
 
-        start.addTransition('ε', first.startState);
-        start.addTransition('ε', second.startState);
+        start.addTransition('\0', first.startState);
+        start.addTransition('\0', second.startState);
 
-        first.endState.addTransition('ε', end);
-        second.endState.addTransition('ε', end);
+        first.endState.addTransition('\0', end);
+        second.endState.addTransition('\0', end);
 
         return new NFA(start, end);
     }
@@ -87,10 +87,10 @@ public class REtoNFA {
         State start = new State(stateCounter++);
         State end = new State(stateCounter++);
 
-        start.addTransition('ε', nfa.startState);
-        nfa.endState.addTransition('ε', end);
-        nfa.endState.addTransition('ε', nfa.startState);
-        start.addTransition('ε', end);
+        start.addTransition('\0', nfa.startState);
+        nfa.endState.addTransition('\0', end);
+        nfa.endState.addTransition('\0', nfa.startState);
+        start.addTransition('\0', end);
 
         return new NFA(start, end);
     }
@@ -100,13 +100,13 @@ public class REtoNFA {
         State end = new State(stateCounter++);
 
         // Start state directly transitions to the first occurrence of nfa
-        start.addTransition('ε', nfa.startState);
+        start.addTransition('\0', nfa.startState);
 
         // The NFA loops back to itself to allow multiple occurrences
-        nfa.endState.addTransition('ε', nfa.startState);
+        nfa.endState.addTransition('\0', nfa.startState);
 
         // Final transition to the end state
-        nfa.endState.addTransition('ε', end);
+        nfa.endState.addTransition('\0', end);
 
         return new NFA(start, end);
     }
@@ -246,7 +246,7 @@ public class REtoNFA {
                         .map(state -> "q" + state.id)  // Formatting state names
                         .collect(Collectors.joining(", "));
 
-                System.out.printf("| %-10s | %-10s | %-20s |\n", "q" + current.id, (symbol == 'ε' ? "ε" : symbol), nextStatesStr);
+                System.out.printf("| %-10s | %-10s | %-20s |\n", "q" + current.id, (symbol == '\0' ? "ε" : symbol), nextStatesStr);
 
                 for (State next : nextStates) {
                     if (!visited.contains(next)) {
@@ -278,7 +278,10 @@ public class REtoNFA {
         String CHARACTER = "'[^']'";
         String PUNCTUATOR = "[{}(),;\\[\\]]";
 
-        NFA identifier_nfa = regexToNFA(COMMENT);
+        NFA identifier_nfa = regexToNFA(KEYWORDS);
         printNFATransitionTable(identifier_nfa);
+        DFA dfa = NFAtoDFAConverter.convertNFAtoDFA(identifier_nfa);
+        System.out.println("\nResulting DFA:");
+        System.out.println(dfa);
     }
 }
