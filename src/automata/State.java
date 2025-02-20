@@ -13,6 +13,10 @@ class State {
     void addTransition(char symbol, State next) {
         transitions.computeIfAbsent(symbol, k -> new ArrayList<>()).add(next);
     }
+
+    public Map<Character, List<State>> getTransitions() {
+        return transitions;
+    }
 }
 
 
