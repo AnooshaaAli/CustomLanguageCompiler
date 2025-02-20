@@ -328,5 +328,9 @@ public class REtoNFA {
         printNFATransitionTable(finalNFA);
 
         System.out.println("Total States: " + finalNFA.countStates());
+
+        DFA dfa = NFAtoDFAConverter.convertNFAtoDFA(finalNFA);
+        System.out.println("\nResulting DFA:");
+        System.out.println(dfa);
     }
 }
