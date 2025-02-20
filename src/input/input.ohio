@@ -2,7 +2,7 @@
 
 beta pi = 3.14159;
 
-func myFunc() { }
+func myfunc() { }
 
 code {
     alpha radius = capture("Radius: ");

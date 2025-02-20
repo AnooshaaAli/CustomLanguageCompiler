@@ -117,11 +117,11 @@ public class Lexer {
 
         boolean isFunction = (index < code.length() && code.charAt(index) == '(');
         if (isFunction) {
-            symbolTable.addSymbol(word, "function");
+            symbolTable.addSymbol(word, "IDENTIFIER", "function");
             return new Token(Token.Type.FUNCTION, word);
         }
         else if (lastDataType != null) {
-            symbolTable.addSymbol(word, lastDataType);
+            symbolTable.addSymbol(word, "IDENTIFIER", "variable");
             lastDataType = null;
         }
 

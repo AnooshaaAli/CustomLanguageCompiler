@@ -1,6 +1,5 @@
 package LexicalAnalyzer;
 
-import java.sql.Array;
 import java.util.*;
 
 class SymbolTable {
@@ -19,12 +18,14 @@ class SymbolTable {
     static class SymbolEntry {
         private final String name;
         private final String type;
+        private final String category;  // Added category field
         private final int memoryLocation;
         private final String scope;
 
-        SymbolEntry(String name, String type, int memoryLocation, String scope) {
+        SymbolEntry(String name, String type, String category, int memoryLocation, String scope) {
             this.name = name;
             this.type = type;
+            this.category = category;
             this.memoryLocation = memoryLocation;
             this.scope = scope;
         }
@@ -37,6 +38,10 @@ class SymbolTable {
             return type;
         }
 
+        public String getCategory() {
+            return category;  // Getter for category
+        }
+
         public int getMemoryLocation() {
             return memoryLocation;
         }
@@ -46,11 +51,10 @@ class SymbolTable {
         }
     }
 
-
-    public void addSymbol(String name, String type) {
+    public void addSymbol(String name, String type, String category) {
         String currentScope = scopeStack.peek();
         if (!table.containsKey(name)) {
-            table.put(name, new SymbolEntry(name, type, memoryAddress++, currentScope));
+            table.put(name, new SymbolEntry(name, type, category, memoryAddress++, currentScope));
         }
     }
 
@@ -65,14 +69,15 @@ class SymbolTable {
     }
 
     public void printSymbolTable() {
-        System.out.println("-------------------------------------------------------------------------------");
-        System.out.printf("%-20s %-15s %-20s %-15s%n", "Name", "Type", "Memory Location", "Scope");
-        System.out.println("-------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
+        System.out.printf("%-20s %-15s %-15s %-20s %-15s%n", "Name", "Type", "Category", "Memory Location", "Scope");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
 
         for (SymbolEntry entry : table.values()) {
-            System.out.printf("%-20s %-15s %-20d %-15s%n",
+            System.out.printf("%-20s %-15s %-15s %-20d %-15s%n",
                     entry.getName(),
                     entry.getType(),
+                    entry.getCategory(),
                     entry.getMemoryLocation(),
                     entry.getScope());
         }
