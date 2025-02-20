@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-class NFA {
+public class NFA {
     State startState;
     State endState;
 

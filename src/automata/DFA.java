@@ -2,10 +2,10 @@ package automata;
 
 import java.util.*;
 
-class DFA {
+public class DFA {
     State startState;
     Set<State> acceptingStates = new HashSet<>();
-    Map<Integer, State> states = new HashMap<>();
+    public Map<Integer, State> states = new HashMap<>();
 
     public DFA(State startState) {
         this.startState = startState;
@@ -49,5 +49,26 @@ class DFA {
         }
 
         return sb.toString();
+    }
+
+    public int process(String input) {
+        State state = startState;
+        Set<State> uniqueStates = new HashSet<>();
+
+        uniqueStates.add(state);
+
+        for (char c : input.toCharArray()) {
+            if (state.transitions.containsKey(c)) {
+                state = state.transitions.get(c).get(0);
+            } else if (state.transitions.containsKey('*')) {
+                state = state.transitions.get('*').get(0);
+            } else {
+                break;
+            }
+            uniqueStates.add(state);
+        }
+
+        //System.out.println("Unique states visited for '" + input + "': " + uniqueStates.size());
+        return uniqueStates.size();
     }
 }

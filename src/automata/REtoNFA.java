@@ -140,7 +140,7 @@ public class REtoNFA {
                     String beforeRange = regex.substring(0, i);
                     String afterRange = expandRange(regex, i);
                     regex = beforeRange + afterRange;
-                    System.out.println("Expanded Regex: " + regex);
+                    //System.out.println("Expanded Regex: " + regex);
                     c = regex.charAt(i);
                 }
                 if (c == '(') {
@@ -253,7 +253,7 @@ public class REtoNFA {
         return combinedNFA;
     }
 
-    private static void printNFATransitionTable(NFA nfa) {
+    public static void printNFATransitionTable(NFA nfa) {
         Set<State> visited = new HashSet<>();
         Queue<State> queue = new LinkedList<>();
 
@@ -332,5 +332,6 @@ public class REtoNFA {
         DFA dfa = NFAtoDFAConverter.convertNFAtoDFA(finalNFA);
         System.out.println("\nResulting DFA:");
         System.out.println(dfa);
+
     }
 }
