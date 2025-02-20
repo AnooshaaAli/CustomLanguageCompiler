@@ -118,10 +118,10 @@ public class REtoNFA {
         State start = new State(stateCounter++);
         State end = new State(stateCounter++);
 
-        start.addTransition('ε', end);
+        start.addTransition('\0', end);
 
-        start.addTransition('ε', nfa.startState);
-        nfa.endState.addTransition('ε', end);
+        start.addTransition('\0', nfa.startState);
+        nfa.endState.addTransition('\0', end);
 
         return new NFA(start, end);
     }
